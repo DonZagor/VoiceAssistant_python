@@ -7,6 +7,7 @@ Current functionalities:
   4. Playing something on YouTube
   5. Searching for anything on google.com
   6. Searching for Wikipedia entries
+ 
 To run this, you will need to install following modules:
   1. pyttsx3
   2. wikipedia
