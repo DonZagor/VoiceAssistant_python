@@ -13,5 +13,6 @@ To run this, you will need to install following modules:
   3. pyjokes
   4. pywhatkit
   5. SpeechRecognition
+
 I will continue working on this and adding more functionalities.
 Contact me on Twitter: @TopicMihajlo, with suggestions.
