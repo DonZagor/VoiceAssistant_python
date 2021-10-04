@@ -5,7 +5,6 @@ import datetime
 import wikipedia
 import pyjokes
 
-listener = sr.Recognizer()
 
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
@@ -21,95 +20,110 @@ def speak(sentence):
 
 
 def take_command():
+    listener = sr.Recognizer()
+    with sr.Microphone() as source:
+        speak("Listening")
+        audio = listener.listen(source)
+
+    data = " "
     try:
-        with sr.Microphone() as source:
-            print('listening...')
-            voice = listener.listen(source)
-            command = listener.recognize_google(voice)
-            command = command.lower()
-    except:
-        pass
-    return command
+        data = listener.recognize_google(audio)
+        speak("You said {}".format(data))
+
+    except sr.UnknownValueError:
+        print("Could not understand")
+
+    except sr.RequestError:
+        print("Request error")
+
+    return data
+
+
+def play_youtube(search_text):
+    video = search_text.replace('play', '')
+    speak('playing' + video)
+    pywhatkit.playonyt(video)
+
+
+def search_google(search_text):
+    topic = search_text.replace('search', '')
+    speak('searching for {}'.format(topic))
+    pywhatkit.search(topic)
+
+
+def tell_date_and_time():
+    today_day = datetime.datetime.now().strftime("%A")
+    today_date = datetime.date.today().strftime("%B %d, %Y")
+    current_time = datetime.datetime.now().strftime('%I:%M %p')
+    speak('Today is {}, the date is {} and the current time is {}'.format(today_day, today_date, current_time))
+
+
+def search_wikipedia(search_text):
+    topic = search_text.replace('wikipedia', '')
+    info = wikipedia.summary(topic, 5)
+    speak(info)
 
 
 def run_text():
     speak('Input your command')
-    text = input()
+    command_text = input()
 
-    if text == 'exit':
-        speak("GOODBYE!")
+    if command_text == 'exit':
+        speak("Goodbye!")
         exit(0)
 
-    if 'play' in text:
-        song = text.replace('play', '')
-        speak('playing' + song)
-        pywhatkit.playonyt(song)
+    if 'play' in command_text:
+        play_youtube(command_text)
 
-    elif 'search' in text:
-        topic = text.replace('search', '')
-        speak('searching for' + topic)
-        pywhatkit.search(topic)
+    elif 'search' in command_text:
+        search_google(command_text)
 
-    elif 'time' in text:
-        time = datetime.datetime.now().strftime('%I:%M %p')
-        speak("Current time is: {}".format(time))
+    elif 'time' in command_text:
+        tell_date_and_time()
 
-    elif 'who is' in text:
-        person = text.replace('who is', '')
-        info = wikipedia.summary(person, 1)
-        speak(info)
+    elif 'wikipedia' in command_text:
+        search_wikipedia(command_text)
 
-    elif 'what is' in text:
-        thing = text.replace('what is', '')
-        info = wikipedia.summary(thing, 1)
-        speak(info)
-
-    elif 'joke' in text:
+    elif 'joke' in command_text:
         speak(pyjokes.get_joke())
 
 
 def run_voice():
     command = take_command()
+
     if command == 'exit':
         speak("GOODBYE!")
         exit(0)
 
     if 'play' in command:
-        song = command.replace('play', '')
-        speak('playing' + song)
-        pywhatkit.playonyt(song)
+        play_youtube(command)
 
     elif 'search' in command:
-        topic = command.replace('search', '')
-        speak('searching for' + topic)
-        pywhatkit.search(topic)
+        search_google(command)
 
     elif 'time' in command:
-        time = datetime.datetime.now().strftime('%I:%M %p')
-        speak("Current time is: {}".format(time))
+        tell_date_and_time()
 
-    elif 'who is' in command:
-        person = command.replace('who is', '')
-        info = wikipedia.summary(person, 1)
-        speak(info)
-
-    elif 'what is' in command:
-        thing = command.replace('what is', '')
-        info = wikipedia.summary(thing, 1)
-        speak(info)
+    elif 'wikipedia' in command:
+        search_wikipedia(command)
 
     elif 'joke' in command:
         speak(pyjokes.get_joke())
 
 
-speak('I am active and listening. Do you wanna speak?')
-speak('If you want to speak enter 1, else enter 0')
-choice = int(input())
-while True:
-    if choice == 0:
+def run(mode):
+    if mode == 0:
         run_text()
-    elif choice == 1:
+    elif mode == 1:
         run_voice()
-    else:
-        speak('Try again')
-        choice = int(input())
+
+
+def main():
+    speak('I am active and listening')
+    speak('If you want to speak enter 1, else enter 0')
+    choice = int(input())
+    while True:
+        run(choice)
+
+
+main()
